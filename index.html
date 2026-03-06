@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Sanura Store</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+margin:0;
+font-family:'Poppins',sans-serif;
+background:linear-gradient(135deg,#fff8e7,#f3e8ff,#eaffea);
+}
+
+/* HEADER */
+
+header{
+text-align:center;
+padding:30px;
+background:linear-gradient(90deg,#6b8e23,#d9b3ff);
+color:white;
+}
+
+header h1{
+font-family:'Dancing Script';
+font-size:42px;
+margin:0;
+}
+
+.intro{
+text-align:center;
+padding:15px;
+font-size:17px;
+}
+
+/* GRID PRODUK */
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+gap:20px;
+padding:20px;
+}
+
+.card{
+background:white;
+border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+overflow:hidden;
+}
+
+.card img{
+width:100%;
+height:180px;
+object-fit:cover;
+}
+
+.card-body{
+padding:10px;
+}
+
+button{
+background:#d9b3ff;
+border:none;
+padding:8px;
+border-radius:8px;
+cursor:pointer;
+width:100%;
+margin-top:5px;
+}
+
+/* CART */
+
+.cart{
+position:fixed;
+top:20px;
+right:20px;
+background:white;
+padding:10px 15px;
+border-radius:20px;
+font-weight:bold;
+}
+
+.total{
+position:fixed;
+top:65px;
+right:20px;
+background:white;
+padding:10px 15px;
+border-radius:20px;
+font-weight:bold;
+}
+
+.checkout{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#6b8e23;
+color:white;
+padding:15px 20px;
+border-radius:30px;
+cursor:pointer;
+}
+
+/* ADMIN PANEL */
+
+.adminPanel{
+display:none;
+background:white;
+margin:20px;
+padding:20px;
+border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+input{
+width:100%;
+padding:8px;
+margin:6px 0;
+}
+
+/* TENTANG KAMI */
+
+.about{
+background:white;
+padding:40px 20px;
+text-align:center;
+line-height:1.7;
+margin-top:40px;
+}
+
+.about h2{
+font-family:'Dancing Script';
+font-size:34px;
+color:#6b8e23;
+}
+
+.about p{
+max-width:700px;
+margin:auto;
+font-size:15px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Sanura Store</h1>
+</header>
+
+<div class="intro">
+✨ Welcome to Sanura Store ✨  
+Tempat koleksi Photocard Idol K-Pop favorit kamu 💚
+</div>
+
+<div style="text-align:center;">
+<button onclick="loginAdmin()">Login Admin</button>
+</div>
+
+<div class="cart">
+🛒 <span id="cartCount">0</span>
+</div>
+
+<div class="total">
+Total Rp <span id="totalHarga">0</span>
+</div>
+
+<div class="grid" id="produkGrid"></div>
+
+<div class="adminPanel" id="adminPanel">
+
+<h3>Admin Panel</h3>
+
+<input type="text" id="namaProduk" placeholder="Nama Photocard">
+
+<input type="number" id="hargaProduk" placeholder="Harga">
+
+<input type="file" id="gambarProduk">
+
+<button onclick="tambahProduk()">Tambah Produk</button>
+
+</div>
+
+<div class="checkout" onclick="checkoutWA()">
+Checkout WhatsApp
+</div>
+
+<!-- TENTANG KAMI -->
+
+<div class="about">
+
+<h2>Tentang Kami</h2>
+
+<p>
+Sanura Store adalah toko online yang menyediakan berbagai koleksi Photocard Idol K-Pop dari berbagai grup populer seperti BTS, BLACKPINK, NCT, EXO, dan SEVENTEEN.  
+
+Kami menyediakan photocard dengan kualitas baik untuk para penggemar K-Pop yang ingin mengoleksi idol favorit mereka.  
+
+Sanura Store dibuat untuk membantu para K-Pop lovers menemukan photocard impian mereka dengan mudah dan praktis melalui pemesanan online yang langsung terhubung ke WhatsApp.
+</p>
+
+</div>
+
+<script>
+
+const PASSWORD="sanura123"
+
+let isAdmin=false
+
+let cart=JSON.parse(localStorage.getItem("cart"))||[]
+
+let produk=JSON.parse(localStorage.getItem("produk"))||[
+{nama:"Photocard Jungkook BTS",harga:60000,gambar:"https://via.placeholder.com/300"},
+{nama:"Photocard Jennie BLACKPINK",harga:60000,gambar:"https://via.placeholder.com/300"}
+]
+
+function loginAdmin(){
+
+let pass=prompt("Masukkan Password Admin")
+
+if(pass===PASSWORD){
+
+isAdmin=true
+document.getElementById("adminPanel").style.display="block"
+alert("Login Admin Berhasil")
+tampilProduk()
+
+}else{
+
+alert("Password salah")
+
+}
+
+}
+
+function tampilProduk(){
+
+let grid=document.getElementById("produkGrid")
+grid.innerHTML=""
+
+produk.forEach((p,index)=>{
+
+grid.innerHTML+=`
+
+<div class="card">
+
+<img src="${p.gambar}">
+
+<div class="card-body">
+
+<div>${p.nama}</div>
+<div>Rp ${p.harga}</div>
+
+<button onclick="beli('${p.nama}',${p.harga})">Beli</button>
+
+${isAdmin ? `
+<button onclick="editProduk(${index})">Edit</button>
+<button onclick="hapusProduk(${index})">Hapus</button>
+` : ""}
+
+</div>
+
+</div>
+
+`
+
+})
+
+}
+
+function tambahProduk(){
+
+let nama=document.getElementById("namaProduk").value
+let harga=document.getElementById("hargaProduk").value
+let file=document.getElementById("gambarProduk").files[0]
+
+let reader=new FileReader()
+
+reader.onload=function(e){
+
+produk.push({
+nama:nama,
+harga:harga,
+gambar:e.target.result
+})
+
+localStorage.setItem("produk",JSON.stringify(produk))
+tampilProduk()
+
+}
+
+reader.readAsDataURL(file)
+
+}
+
+function editProduk(index){
+
+document.getElementById("namaProduk").value=produk[index].nama
+document.getElementById("hargaProduk").value=produk[index].harga
+
+produk.splice(index,1)
+
+localStorage.setItem("produk",JSON.stringify(produk))
+tampilProduk()
+
+}
+
+function hapusProduk(index){
+
+produk.splice(index,1)
+
+localStorage.setItem("produk",JSON.stringify(produk))
+tampilProduk()
+
+}
+
+function beli(nama,harga){
+
+cart.push({nama,harga})
+
+localStorage.setItem("cart",JSON.stringify(cart))
+
+updateTampilan()
+
+}
+
+function updateTampilan(){
+
+document.getElementById("cartCount").innerText=cart.length
+
+let total=0
+cart.forEach(i=>total+=i.harga)
+
+document.getElementById("totalHarga").innerText=total
+
+}
+
+function checkoutWA(){
+
+let pesan="Halo saya ingin membeli:%0A"
+
+let total=0
+
+cart.forEach((i,index)=>{
+
+pesan+=`${index+1}. ${i.nama} - Rp ${i.harga}%0A`
+total+=i.harga
+
+})
+
+pesan+=`%0ATotal: Rp ${total}`
+
+window.open(`https://wa.me/6281398071811?text=${pesan}`)
+
+}
+
+tampilProduk()
+updateTampilan()
+
+</script>
+
+</body>
+  </html>
